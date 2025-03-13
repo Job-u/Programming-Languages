@@ -1,7 +1,8 @@
 # Token types 
 # EOF (end-of-file) token is used to indicate that 
 # there is no more input left for lexical analysis
-INTEGER, PLUS, MINUS, MUL, DIV, EOF = 'INTEGER', 'PLUS', 'MINUS', 'MUL', 'DIV', 'EOF'
+INTEGER, PLUS, MINUS, MUL, DIV, EOF = ( 'INTEGER', 'PLUS', 'MINUS', 'MUL', 'DIV', 'EOF'
+)
 
 
 class Token(object):
@@ -50,6 +51,10 @@ class Interpreter(object):
         return int(result)
 
     def get_next_token(self):
+        """Lexical analyzer (also known as scanner or tokenizer)
+        This method is responsible for breaking a sentence apart into tokens. One token at a time.
+        """
+
         while self.current_char is not None:
             if self.current_char.isspace():
                 self.skip_whitespace()
@@ -83,6 +88,8 @@ class Interpreter(object):
         return token.value
 
     def term(self):
+        """term : factor ((MUL | DIV) factor)*"""
+        
         result = self.factor()
         while self.current_token.type in (MUL, DIV):
             token = self.current_token
@@ -95,6 +102,16 @@ class Interpreter(object):
         return result
 
     def expr(self):
+        """Arithmetic expression parser / interpreter.
+        
+        calc> 14 + 2 * 3 - 6 / 2
+        17
+        
+        expr    : term ((PLUS | MINUS) term)*
+        term    : factor ((MUL | DIV) factor)*
+        factor  : INTEGER
+        """
+        
         self.current_token = self.get_next_token()
         result = self.term()
         while self.current_token.type in (PLUS, MINUS):
